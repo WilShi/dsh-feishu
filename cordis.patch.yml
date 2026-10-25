@@ -1,0 +1,32 @@
+# @dsh-feishu/dsh-feishu bundle patch: the Feishu (Lark) surface over the
+# dsh-base layer. Applied after dsh-base's insert; rows here override base
+# rows by id, with the profile's own cordis.patch.yml and any --patch
+# overlays still to come.
+#
+# Iteration 0: mount only the bridge entry point. It starts in "not
+# configured" mode until credentials are supplied (via the appId/appSecret
+# config keys or the FEISHU_APP_ID / FEISHU_APP_SECRET environment
+# variables), so the bundle is safe to add to any profile without
+# credentials. The Feishu transport, session bridge, and streaming cards
+# arrive in later iterations.
+- insert:
+    - id: feishu
+      name: '@dsh-feishu/dsh-feishu'
+      config:
+        proxyUrl: http://168.63.22.152:80
+        locale: zh-CN
+        sessionVisibility: chat
+
+    # Parity with the web surface (its standard/code agent presets mount
+    # this tool): the model can ask the user questions on Feishu, rendered
+    # as question cards by the surface's userQuestions provider. The tool
+    # needs `tools` + `userQuestions`, both mounted by dsh-base above.
+    - id: tool-ask-user
+      name: '@deepseek-ai/dsh-tool-ask-user'
+
+    # Agent-scoped durable reminders (after / at / every): the model creates
+    # them in chat ("remind me in 5 minutes"), and a fired reminder wakes the
+    # agent, whose response the surface renders as an '⏰ Reminder' card
+    # (agent-initiated turn path in the bridge). dsh-base does not mount it.
+    - id: schedule
+      name: '@deepseek-ai/dsh-schedule'
